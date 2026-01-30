@@ -1,0 +1,37 @@
+services:
+  apache-fpm:
+    image: alveelia/apache-fpm-8.4-dev:1.0
+    container_name: php84
+    restart: unless-stopped
+    volumes:
+      - ./config/php84/apache2/sites-enabled:/etc/apache2/sites-enabled
+      - ./config/php84/php/php.ini:/etc/php/8.4/cli/conf.d/00-custom.ini
+      - ./config/php84/php/php.ini:/etc/php/8.4/fpm/conf.d/00-custom.ini
+      - ${SITE_SRC}:/var/www/html
+    ports:
+      - 80:80
+    networks:
+      - local
+
+  mysql80:
+    image: alveelia/mysql-8.0-dev:1.0
+    container_name: mysql-8.0
+    restart: always
+    command:
+      [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--default-authentication-plugin=mysql_native_password",
+      ]
+    ports:
+      - "3306:3306"
+    networks:
+      - local
+    volumes:
+      - ../../volumes/mysql80:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL80_ROOT_PASSWORD}
+
+networks:
+  local:
+    external: true
